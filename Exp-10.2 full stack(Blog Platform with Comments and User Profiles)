@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Blog Platform with Comments</title>
+<style>
+body {
+font-family: "Segoe UI", sans-serif;
+background: linear-gradient(135deg, #4c83ff, #6b47ff);
+color: white;
+display: flex;
+flex-direction: column;
+align-items: center;
+margin: 0;
+padding: 0;
+}
+.container {
+width: 80%;
+max-width: 900px;
+background: rgba(255, 255, 255, 0.1);
+margin: 50px 0;
+padding: 30px;
+border-radius: 15px;
+backdrop-filter: blur(10px);
+box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+}
+h1 {
+text-align: center;
+margin-bottom: 20px;
+}
+.user-section, .new-post, .blog-list {
+margin-bottom: 30px;
+}
+input, textarea, button {
+padding: 10px;
+border-radius: 5px;
+border: none;
+margin-top: 10px;
+width: 100%;
+}
+button {
+cursor: pointer;
+background: #00bcd4;
+color: white;
+font-weight: bold;
+}
+.post {
+background: rgba(255, 255, 255, 0.15);
+padding: 15px;
+margin-top: 15px;
+border-radius: 10px;
+}
+.comment {
+margin-left: 20px;
+background: rgba(255, 255, 255, 0.1);
+padding: 10px;
+margin-top: 8px;
+border-radius: 8px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>📝 Blog Platform with Comments</h1>
+
+<div class="user-section">
+<h2>👤 Create User</h2>
+<input type="text" id="username" placeholder="Enter your username" />
+<button onclick="createUser()">Create / Switch User</button>
+</div>
+<div class="new-post">
+<h2>✍️ Write a New Post</h2>
+<input type="text" id="postTitle" placeholder="Post title" />
+<textarea id="postContent" placeholder="Write your blog post here..."></textarea>
+<button onclick="addPost()">Publish Post</button>
+</div>
+<div class="blog-list">
+<h2>📰 All Blog Posts</h2>
+<div id="postsContainer"></div>
+</div>
+</div>
+<script>
+let currentUser = "";
+let posts = [];
+function createUser() {
+const usernameInput = document.getElementById('username');
+currentUser = usernameInput.value.trim();
+if (currentUser === "") {
+alert("Enter a valid username!");
+return;
+}
+alert(`Logged in as ${currentUser}`);
+}
+function addPost() {
+if (!currentUser) {
+alert("Please create or select a user first!");
+return;
+}
+const title = document.getElementById('postTitle').value.trim();
+const content = document.getElementById('postContent').value.trim();
+if (!title || !content) {
+alert("Title and content cannot be empty!");
+return;
+}
+const newPost = {
+id: Date.now(),
+author: currentUser,
+title,
+content,
+comments: []
+};
+posts.push(newPost);
+document.getElementById('postTitle').value = '';
+document.getElementById('postContent').value = '';
+renderPosts();
+}
+function addComment(postId) {
+const commentInput = document.getElementById(`comment-${postId}`);
+const text = commentInput.value.trim();
+if (!currentUser) {
+alert("Please log in before commenting!");
+return;
+}
+if (text === "") return;
+const post = posts.find(p => p.id === postId);
+post.comments.push({ user: currentUser, text });
+commentInput.value = '';
+renderPosts();
+}
+function renderPosts() {
+const container = document.getElementById('postsContainer');
+container.innerHTML = '';
+posts.forEach(post => {
+const postDiv = document.createElement('div');
+postDiv.classList.add('post');
+postDiv.innerHTML = `
+<h3>${post.title}</h3>
+<p>${post.content}</p>
+<small>👤 by ${post.author}</small>
+<div>
+<h4>💬 Comments:</h4>
+${post.comments.map(c => `<div class="comment"><b>${c.user}:</b> ${c.text}</div>`).join('')}
+<input type="text" id="comment-${post.id}" placeholder="Add a comment..." />
+<button onclick="addComment(${post.id})">Comment</button>
+</div>
+`;
+container.appendChild(postDiv);
+});
+}
+</script>
+</body>
+</html>
